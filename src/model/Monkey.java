@@ -3,7 +3,8 @@ package model;
 import java.util.Random;
 
 public class Monkey {
-	
+
+	private static final long serialVersionUID = 1L;
 	private int score=0;
 	Random random = new Random();
 	int num = random.nextInt(50)+1;
@@ -34,12 +35,12 @@ public class Monkey {
 	public int getScore() {
 		return score;
 	}
-	private static Monkey instance = new Monkey();
+	/*private static Monkey instance = new Monkey();
 	private Monkey() {
 		
 	}
 	public static Monkey getInstance() {
 		return instance;
-	}
+	}*/
 	
 }

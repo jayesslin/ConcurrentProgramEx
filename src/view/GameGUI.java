@@ -5,12 +5,22 @@ import java.awt.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import ClientController.GameController;
+
+/*
 import Controller.GameController;
 import Controller.TimeThread;
 import TimeTools.CutDownTime;
-
+*/
 import java.awt.event.*;
 import java.awt.image.ImageObserver;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 
 import model.Banana;
@@ -18,13 +28,17 @@ import model.Grid;
 import model.Monkey;
 
 public class GameGUI extends JFrame {
+	
+	Socket connectToServer;
+	
+    
 	MyPanel mp1=null;
 	Monkey m = Monkey.getInstance();
 	Banana b = Banana.getInstance();
-	CutDownTime n =new CutDownTime();
-	GameController GC = new GameController();
-	TimeThread tt = new TimeThread();
+	//CutDownTime n =new CutDownTime();
 	
+	//TimeThread tt = new TimeThread();
+	GameController GC = new GameController();
 	
 	static Grid g = new Grid();
 	//Image
@@ -58,6 +72,16 @@ public class GameGUI extends JFrame {
 			this.setBackground(Color.black);
 			this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			this.addKeyListener((KeyListener) mp1);
+			try {
+				connectToServer = new Socket("192.168.3.4",5500);
+				System.out.println("链接上 ："+connectToServer.getInetAddress());
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -69,6 +93,7 @@ public class GameGUI extends JFrame {
 			//ini with super class function
 			super.paint(g);	
 			this.repaint();
+			//System.out.println("猴子出现在 ： "+ Monkey.getInstance().getX() +", "+Monkey.getInstance().getY());
 			//back groud  in BLACK
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 800, 600);
@@ -121,13 +146,13 @@ public class GameGUI extends JFrame {
 			//Couping with Game boundary!
 			g.drawString("Your score is :"+m.getScore(),(length+1)*width+50 , 150);
 			//CountDown Time
-			if(n.getCursec()<=10) {
+			/*if(n.getCursec()<=10) {
 				g.setColor(Color.RED);
 				g.setFont(new Font("TimesRoman",Font.BOLD,25));
-			}
+			}*/
 			g.setFont(new Font("TimesRoman",Font.BOLD,20));
 			//Couping with Game boundary!
-			g.drawString("Remians: "+n.getCursec()+" s",(length+1)*width+50 , 170);
+			//g.drawString("Remians: "+n.getCursec()+" s",(length+1)*width+50 , 170);
 			
 			
 			//legend Imformation Monkey
@@ -151,49 +176,93 @@ public class GameGUI extends JFrame {
 			g.setColor(Color.white);
 			g.drawString("Banana",560,500);
 			
-			if(n.getCursec()!=0) {
-			this.repaint();
-			}else { 
-			int Scoretmp =m.getScore();
-			n.setCursec(tt.GameTime);
-			GC.Changestate("end");
+			//if(n.getCursec()!=0) {
+			//this.repaint();
+			//}else { 
+			//int Scoretmp =m.getScore();
+			//n.setCursec(tt.GameTime);
+			//GC.Changestate("end");
 
 			//someThing BUGs!!!!!!
-			JOptionPane.showMessageDialog(GameGUI.geyInstance(), "Your score is :"+Scoretmp+" !", "Game Over!",JOptionPane.WARNING_MESSAGE); 
+			//JOptionPane.showMessageDialog(GameGUI.geyInstance(), "Your score is :"+Scoretmp+" !", "Game Over!",JOptionPane.WARNING_MESSAGE); 
 			//Update the new GameInterface
 			
 			
-			GC.Changestate("start");
+			/*GC.Changestate("start");
 			this.update(g);
-			this.repaint();
+			this.repaint();*/
 
 
 			
 			}
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
 		}
+
+		@Override
 		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			String msg = null;
+			switch(e.getKeyCode())
+			{
+				case KeyEvent.VK_UP:
+					msg="down";
+					GC.MoveMonkey(connectToServer, msg);
+					this.repaint();
+					break;
+				case KeyEvent.VK_DOWN:
+					msg="up";
+					GC.MoveMonkey(connectToServer, msg);
+					this.repaint();
+					break;
+				case KeyEvent.VK_LEFT:
+					msg="left";
+					GC.MoveMonkey(connectToServer, msg);
+					this.repaint();
+					break;
+				case KeyEvent.VK_RIGHT:
+					msg="right";
+					GC.MoveMonkey(connectToServer, msg);
+					this.repaint();
+					break;
+				case KeyEvent.VK_ESCAPE:
+					System.exit(0);
+					break;
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+		}
+		/*public void keyPressed(KeyEvent e) {
 			
 			String msg = null;
 			switch(e.getKeyCode())
 			{
 				case KeyEvent.VK_UP:
 					msg="down";
-					GC.Changestate(msg);
+					GC.MoveMonkey(connectToServer, msg);
 					this.repaint();
 					break;
 				case KeyEvent.VK_DOWN:
 					msg="up";
-					GC.Changestate(msg);
+					GC.MoveMonkey(connectToServer, msg);
 					this.repaint();
 					break;
 				case KeyEvent.VK_LEFT:
 					msg="left";
-					GC.Changestate(msg);
+					GC.MoveMonkey(connectToServer, msg);
 					this.repaint();
 					break;
 				case KeyEvent.VK_RIGHT:
 					msg="right";
-					GC.Changestate(msg);
+					GC.MoveMonkey(connectToServer, msg);
 					this.repaint();
 					break;
 				case KeyEvent.VK_ESCAPE:
@@ -210,7 +279,7 @@ public class GameGUI extends JFrame {
 		public void keyReleased(KeyEvent e) {
 			// TODO Auto-generated method stub
 			
-		}
-	}
+		}*/
+	
 	
 }

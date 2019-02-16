@@ -2,8 +2,11 @@ package 服务器客户端;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import model.Monkey;
 public class Server_Base {
 
     public static void main(String[] args) {
@@ -17,7 +20,7 @@ public class Server_Base {
  
             DataInputStream inFromClient = new DataInputStream(connectFromClient.getInputStream());
             DataOutputStream outToClient = new DataOutputStream(connectFromClient.getOutputStream());
- 
+            ObjectOutputStream oop  =  new ObjectOutputStream(connectFromClient.getOutputStream());
             String str;
             double radius, area;
             boolean goon = true;
@@ -32,6 +35,9 @@ public class Server_Base {
                     str = Double.toString(area);
                     outToClient.writeUTF(str);
                     outToClient.flush();
+                    //写物体
+                    oop.writeObject(new Monkey());
+                    oop.flush();
                     System.out.println("圆的面积"+str+"已经发送");
                 }else{
                     goon = false;

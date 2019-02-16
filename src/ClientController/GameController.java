@@ -1,46 +1,48 @@
 package ClientController;
 
 
-import stateImp.down_move;
-import stateImp.endstate;
-import stateImp.left_move;
-import stateImp.right_move;
-import stateImp.startstate;
-import stateImp.up_move;
+
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.Socket;
+
+import model.Monkey;
 import view.GameGUI;
 
 public class GameController {
-	context c = new context();
-	public void Changestate(String msg) {
-		GameGUI GG= GameGUI.geyInstance();
-				if(msg.equals("up")) {
-					c.setState(new up_move());
-					//c.eat();
-				}
-				else if(msg.equals("start")) {
-					/*GameThread Game = new GameThread();
-					TimeThread Time = new TimeThread();
-					Game.start();
-					Time.start();*/
-					c.setState(new startstate());
-					//c.eat();
-					}
-				else if (msg.equals("down")) {
-					c.setState(new down_move());
-					//c.eat();
-				}
-				else if (msg.equals("right")) {
-					c.setState(new right_move());
-					//c.eat();
-				}
-				else if (msg.equals("left")) {
-					c.setState(new left_move());
-					//c.eat();
-				}
-				if(msg.equals("end")) {
-					c.setState(new endstate());
-					
-				}
+	
+	public void MoveMonkey(Socket socket, String str) {
+        //对象输入流
+        try {
+        	//2.将输入流连接到socket上
+            DataInputStream inFromServer = new DataInputStream(socket.getInputStream());
+            //3. 将输出流连接到socket上
+            DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
+            //对象输入流
+			ObjectInputStream objis =  new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+			Object obj;
+			
+			try {
+				outToServer.writeUTF(str);
+				outToServer.flush();
+				obj = objis.readObject();
+				Monkey monkeyreturn = (Monkey)obj;
+				Monkey s = Monkey.getInstance();
+				s.setScore(monkeyreturn.getScore());
+				s.setX(monkeyreturn.getX());
+				s.setY(monkeyreturn.getY());
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			}
 
 	}

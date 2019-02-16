@@ -53,7 +53,7 @@ public class WelcomeGUI extends JFrame{
 					break;
 				case KeyEvent.VK_ENTER:
 					
-					GC.Changestate("start");
+					//GC.Changestate("start");
 				
 					break;
 				
